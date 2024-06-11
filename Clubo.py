@@ -6,8 +6,9 @@ import sys
 from modules.history import ChatHistory
 from modules.layout import Layout
 from modules.utils import Utilities
+from modules.sidebar import Sidebar
 
-# To be able to update the changes made to modules in localhost (press r)
+#To be able to update the changes made to modules in localhost (press r)
 def reload_module(module_name):
     import importlib
     import sys
@@ -18,37 +19,21 @@ def reload_module(module_name):
 history_module = reload_module('modules.history')
 layout_module = reload_module('modules.layout')
 utils_module = reload_module('modules.utils')
+sidebar_module = reload_module('modules.sidebar')
 
 ChatHistory = history_module.ChatHistory
 Layout = layout_module.Layout
 Utilities = utils_module.Utilities
+Sidebar = sidebar_module.Sidebar
 
 st.set_page_config(layout="wide", page_icon="💬", page_title="Clubo Chat-Bot 🤖")
 
-# Custom CSS to hide the deploy button and the menu
-hide_streamlit_style = """
-<style>
-
-</style>
-"""
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
-# Initialize session state variables
-if 'model' not in st.session_state:
-    st.session_state['model'] = 'gpt-3.5-turbo'
-if 'temperature' not in st.session_state:
-    st.session_state['temperature'] = 0.0
-if 'reset_chat' not in st.session_state:
-    st.session_state['reset_chat'] = False
-if 'ready' not in st.session_state:
-    st.session_state['ready'] = True
-
 # Instantiate the main components
-layout, utils = Layout(), Utilities()
+layout, sidebar, utils = Layout(), Sidebar(), Utilities()
 
 layout.show_header("PDF, TXT, CSV")
 
-user_api_key = utils.load_api_key()
+user_api_key = st.secrets["OPENAI_API_KEY"]
 
 if not user_api_key:
     layout.show_api_key_missing()
@@ -58,6 +43,9 @@ else:
     uploaded_file = utils.handle_upload(["pdf"])
 
     if uploaded_file:
+
+        # Configure the sidebar
+        sidebar.show_options()
 
         # Initialize chat history
         history = ChatHistory()
@@ -103,3 +91,4 @@ else:
                 history.generate_messages(response_container)
         except Exception as e:
             st.error(f"Error: {str(e)}")
+
