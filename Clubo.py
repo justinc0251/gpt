@@ -50,7 +50,7 @@ layout, utils = Layout(), Utilities()
 
 layout.show_header("PDF, TXT, CSV")
 
-user_api_key = user_api_key = utils.load_api_key()
+user_api_key = st.secrets.get("OPENAPI_KEY")
 
 if not user_api_key:
     st.error("No API key found. Please add an API key to your secrets.")
